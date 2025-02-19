@@ -20,6 +20,8 @@ const limiter = rateLimit({
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
 // Middlewares
 app.use(limiter);
 app.use(express.json());
@@ -28,6 +30,14 @@ app.use(helmet());
 app.use(morgan("combined"));
 app.use(bodyParser.json());
 
+// Dynamically set the base URL based on environment
+const baseUrl =
+  process.env.NODE_ENV === 'production'
+    ? PROCESS.env.BASEURL  // Production URL
+    : `http://localhost:${PORT}`;  // Local development URL
+
+// Replace the placeholder with the correct base URL
+swaggerDocument.servers[0].url = baseUrl;
 // OpenAPI Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -55,5 +65,4 @@ const errorHandler = require("./src/middlewares/errorHandler");
 app.use(errorHandler);
 
 // Start Server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

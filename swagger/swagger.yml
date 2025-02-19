@@ -5,7 +5,7 @@ info:
   description: API documentation for OpenAPI Node.js project
 
 servers:
-  - url: http://localhost:3000
+  - url: "{baseUrl}"  # Placeholder for the base URL
     description: Base URL
 
 paths:
