@@ -1,0 +1,16 @@
+openapi: 3.0.0
+title: "My API"
+version: "1.0.0"
+paths:
+  /api/v1:
+    get:
+      summary: "Root of API v1"
+      responses:
+        200:
+          description: "Successful response"
+  /api/v2:
+    get:
+      summary: "Root of API v2"
+      responses:
+        200:
+          description: "Successful response"
