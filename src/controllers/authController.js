@@ -1,5 +1,3 @@
-// controllers/authController.js
-
 const bcrypt = require('bcryptjs');
 const { generateToken } = require('../config/auth');
 
