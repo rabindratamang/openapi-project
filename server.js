@@ -31,10 +31,7 @@ app.use(morgan("combined"));
 app.use(bodyParser.json());
 
 // Dynamically set the base URL based on environment
-const baseUrl =
-  process.env.NODE_ENV === 'production'
-    ? PROCESS.env.BASEURL  // Production URL
-    : `http://localhost:${PORT}`;  // Local development URL
+const baseUrl = PROCESS.env.BASEURL || `http://localhost:${PORT}`;  // Local development URL
 
 // Replace the placeholder with the correct base URL
 swaggerDocument.servers[0].url = baseUrl;
