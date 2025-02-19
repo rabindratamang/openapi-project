@@ -1,16 +1,119 @@
 openapi: 3.0.0
-title: "My API"
-version: "1.0.0"
+info:
+  title: OpenAPI Node.js Example
+  description: API documentation for the Node.js OpenAPI project with in-memory storage.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: V1 API
+  - url: http://localhost:3000/api/v2
+    description: V2 API
+
 paths:
-  /api/v1:
+  /:
     get:
-      summary: "Root of API v1"
+      summary: Get all resources
+      description: Retrieve all stored objects in memory.
+      operationId: getAllResources
       responses:
-        200:
-          description: "Successful response"
-  /api/v2:
-    get:
-      summary: "Root of API v2"
+        "200":
+          description: List of all resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resource"
+
+    post:
+      summary: Create a new resource
+      description: Add a new object to in-memory storage.
+      operationId: createResource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
       responses:
-        200:
-          description: "Successful response"
+        "201":
+          description: Resource created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+
+  /{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of the resource
+        schema:
+          type: integer
+
+    put:
+      summary: Update a resource
+      description: Replace an object with new data by ID.
+      operationId: updateResource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
+      responses:
+        "200":
+          description: Resource updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "404":
+          description: Resource not found
+
+    patch:
+      summary: Modify a resource
+      description: Partially update an object by ID.
+      operationId: modifyResource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
+      responses:
+        "200":
+          description: Resource modified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "404":
+          description: Resource not found
+
+    delete:
+      summary: Delete a resource
+      description: Remove an object from memory by ID.
+      operationId: deleteResource
+      responses:
+        "200":
+          description: Resource deleted successfully
+        "404":
+          description: Resource not found
+
+components:
+  schemas:
+    Resource:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique ID of the resource
+        name:
+          type: string
+          description: Name of the resource
+        value:
+          type: string
+          description: Any value associated with the resource
