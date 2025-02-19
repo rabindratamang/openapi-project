@@ -104,5 +104,3 @@ The project includes a logging utility (`logger.js`) that logs requests and erro
 - [Express](https://expressjs.com/)
 
 ---
-
-Feel free to modify this README to better suit your project's needs!
