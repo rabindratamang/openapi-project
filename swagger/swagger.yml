@@ -5,16 +5,82 @@ info:
   description: API documentation for OpenAPI Node.js project
 
 servers:
-  - url: http://localhost:3000/api/v1
-    description: Version 1 API
-  - url: http://localhost:3000/api/v2
-    description: Version 2 API
+  - url: http://localhost:3000
+    description: Base URL
 
 paths:
-  /:
+  # Auth Endpoints
+  /api/auth/register:
+    post:
+      summary: Register a new user (v1)
+      operationId: registerUserV1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User registered successfully, JWT token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+        "400":
+          description: Bad request, invalid schema
+
+  /api/auth/login:
+    post:
+      summary: Login to get a JWT token (v1)
+      operationId: loginUserV1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Successfully logged in, JWT token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Invalid credentials
+
+  # API V1 Endpoints (Protected)
+  /api/v1/resources:
     get:
-      summary: Get all resources
-      operationId: getAllResources
+      summary: Get all resources (v1)
+      operationId: getAllResourcesV1
+      security:
+        - BearerAuth: []  # Protected endpoint
       responses:
         "200":
           description: Successfully retrieved resources
@@ -24,10 +90,11 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Resource"
-
     post:
-      summary: Create a new resource
-      operationId: createResource
+      summary: Create a new resource (v1)
+      operationId: createResourceV1
+      security:
+        - BearerAuth: []  # Protected endpoint
       requestBody:
         required: true
         content:
@@ -44,16 +111,115 @@ paths:
         "400":
           description: Bad request, invalid schema
 
-  "/{id}":
+  /api/v1/resources/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
     put:
-      summary: Update an existing resource
-      operationId: updateResource
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Update an existing resource (v1)
+      operationId: updateResourceV1
+      security:
+        - BearerAuth: []  # Protected endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
+      responses:
+        "200":
+          description: Successfully updated resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "403":
+          description: Forbidden – Invalid or missing JWT token
+        "404":
+          description: Resource not found
+
+    patch:
+      summary: Modify an existing resource (v1)
+      operationId: modifyResourceV1
+      security:
+        - BearerAuth: []  # Protected endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
+      responses:
+        "200":
+          description: Successfully modified resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "403":
+          description: Forbidden – Invalid or missing JWT token
+        "404":
+          description: Resource not found
+
+    delete:
+      summary: Delete an existing resource (v1)
+      operationId: deleteResourceV1
+      security:
+        - BearerAuth: []  # Protected endpoint
+      responses:
+        "200":
+          description: Successfully deleted resource
+        "403":
+          description: Forbidden – Invalid or missing JWT token
+        "404":
+          description: Resource not found
+
+  # API V2 Endpoints (Unprotected)
+  /api/v2/resources:
+    get:
+      summary: Get all resources (v2)
+      operationId: getAllResourcesV2
+      responses:
+        "200":
+          description: Successfully retrieved resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resource"
+    post:
+      summary: Create a new resource (v2)
+      operationId: createResourceV2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resource"
+      responses:
+        "201":
+          description: Resource created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+        "400":
+          description: Bad request, invalid schema
+
+  /api/v2/resources/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      summary: Update an existing resource (v2)
+      operationId: updateResourceV2
       requestBody:
         required: true
         content:
@@ -71,14 +237,8 @@ paths:
           description: Resource not found
 
     patch:
-      summary: Modify an existing resource
-      operationId: modifyResource
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Modify an existing resource (v2)
+      operationId: modifyResourceV2
       requestBody:
         required: true
         content:
@@ -96,14 +256,8 @@ paths:
           description: Resource not found
 
     delete:
-      summary: Delete an existing resource
-      operationId: deleteResource
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      summary: Delete an existing resource (v2)
+      operationId: deleteResourceV2
       responses:
         "200":
           description: Successfully deleted resource
@@ -128,3 +282,9 @@ components:
         value:
           type: string
           example: "string"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
