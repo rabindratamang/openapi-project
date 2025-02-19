@@ -1,19 +1,23 @@
 // server.js - Entry point
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
-const swaggerUi = require("swagger-ui-express");
 const yaml = require("yamljs");
+const swaggerUi = require("swagger-ui-express");
+const swaggerPath = path.join(__dirname, "swagger", "swagger.yml");
+const swaggerDocument = yaml.load(swaggerPath);
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const app = express();
-const swaggerDocument = yaml.load("./swagger/swagger.yml");
+const OpenApiValidator = require("express-openapi-validator");
 const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-});
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+  });
+
+const app = express();
 
 // Middlewares
 app.use(limiter);
@@ -24,6 +28,15 @@ app.use(morgan("combined"));
 
 // OpenAPI Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// OpenAPI Validator Middleware
+app.use(
+    OpenApiValidator.middleware({
+      apiSpec: swaggerPath,
+      validateRequests: true, // Validate request body, params, query
+      validateResponses: true, // Validate responses before sending
+    })
+  );
 
 // Routes
 const v1Routes = require("./src/routes/v1Routes");
